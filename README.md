@@ -25,8 +25,7 @@ This project uses a Conda environment for managing dependencies.
 ## Usage
 Command-Line Interface
 Run the script with the following arguments:
-    ```bash
-    python tsv_motion_processor.py <data_dir> <subject> <session> <task> <run>
+    python main.py <data_dir> <subject> <session> <task> <run>
 
 Positional Arguments:
 - `<data_dir>`: Path to the directory containing the motion TSV files.
