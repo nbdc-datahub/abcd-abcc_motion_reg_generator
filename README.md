@@ -2,8 +2,6 @@
 
 A Python-based tool for processing motion TSV files in a BIDS-like directory structure. This tool extracts and reformats motion regressors for analysis, handling files with potential misaligned data or unconventional formatting.
 
----
-
 ## Features
 
 - **Automated Column Extraction**:
@@ -13,7 +11,6 @@ A Python-based tool for processing motion TSV files in a BIDS-like directory str
 - **Supports BIDS Naming**:
   - Compatible with subject/session/task/run BIDS-like directory structures.
 
----
 
 ## Requirements
 
@@ -28,9 +25,9 @@ This project uses a Conda environment for managing dependencies.
 ## Usage
 Command-Line Interface
 Run the script with the following arguments:
-    ```
+    ```bash
     python tsv_motion_processor.py <data_dir> <subject> <session> <task> <run>
-    ```
+
 Positional Arguments:
 - `<data_dir>`: Path to the directory containing the motion TSV files.
 - `<subject>`: Subject identifier (e.g., `sub-01`).
@@ -39,9 +36,7 @@ Positional Arguments:
 - `<run>`: Run identifier (e.g., `run-01`). 
 
 ## Example:
-    ```
     python main.py /path/to/data sub-01 ses-01 task-rest run-01
-    ```
 ## Expected File Structure
 The tool assumes the following directory structure:
 ```<data_dir>/
