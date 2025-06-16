@@ -23,7 +23,7 @@ This project uses a Conda environment for managing dependencies.
    conda env create -f environment.yml
 
 ## Usage
-Command-Line Interface
+Command-Line Interface  
 Run the script with the following arguments:
     ```
     python main.py <data_dir> <subject> <session> <task> <run>
