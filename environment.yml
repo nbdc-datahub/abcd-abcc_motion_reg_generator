@@ -1,4 +1,4 @@
-name: motion_tsv_generator_test
+name: motion_tsv_generator
 channels:
   - conda-forge
 dependencies:

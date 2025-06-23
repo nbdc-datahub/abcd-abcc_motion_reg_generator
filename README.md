@@ -22,6 +22,11 @@ This project uses a Conda environment for managing dependencies.
    ```bash
    conda env create -f environment.yml
 
+2. Activate the environment:
+   ```bash
+   conda activate abcd_motion_reg_generator
+   
+
 ## Usage
 Command-Line Interface  
 Run the script with the following arguments:
