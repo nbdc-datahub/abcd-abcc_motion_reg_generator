@@ -1,11 +1,14 @@
 # ABCD Motion Regressor Generator
 
-A Python-based tool for processing motion TSV files in a BIDS-like directory structure. This tool extracts and reformats motion regressors for analysis, handling files with potential misaligned data or unconventional formatting.
+A Python-based tool for processing motion TSV files in a BIDS-like directory structure. This tool extracts and reformats motion regressors for analysis, handling files with potential misaligned data or unconventional formatting. 
 
 ## Features
 
 - **Automated Column Extraction**:
   - Processes motion TSV files, extracting specific columns required for analysis.
+- **Automatic task run detection**:
+  - Identifies count of  `rest run` based on the length of concatenated timeseries file.
+  - Generates a motion TSV file with the extracted columns, only for the the runs that are not already present in the directory.
 - **Handles Misaligned Data**:
   - Fixes rows with concatenated data into a single column.
 - **Supports BIDS Naming**:
@@ -32,7 +35,7 @@ Command-Line Interface
 Run the script with the following arguments:
 
     
-    python main.py <data_dir> <subject> <session> <task> <run>
+    python main.py <data_dir> <subject> <session>
     
 
 
@@ -40,11 +43,9 @@ Positional Arguments:
 - `<data_dir>`: Path to the directory containing the motion TSV files.
 - `<subject>`: Subject identifier (e.g., `sub-01`).
 - `<session>`: Session identifier (e.g., `ses-01`).
-- `<task>`: Task identifier (e.g., `task-rest`).
-- `<run>`: Run identifier (e.g., `run-01`). 
 
 ## Example:
-    python main.py /path/to/data sub-01 ses-01 task-rest run-01
+    python main.py /path/to/data sub-01 ses-01 
 ## Expected File Structure
 The tool assumes the following directory structure:
 ```<data_dir>/
@@ -52,6 +53,9 @@ The tool assumes the following directory structure:
         <session>/
             func/
                 <subject>_<session>_task-<task>_<run>_desc-includingFD_motion.tsv
+                <subject>_<session>_task-<task>_<run>_desc-filteredincludingFD_motion.tsv
+                .
+                .
 ```
 - Each motion TSV file should contain columns for translation and rotation parameters along with their respective derivatives.
 - The script will create a new TSV file with the extracted and reformatted data.

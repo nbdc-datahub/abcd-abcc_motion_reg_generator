@@ -12,6 +12,7 @@ import os
 import sys
 from pathlib import Path
 import argparse
+import nibabel as nib
 
 
 def process_motion_tsv(input_filepath, output_filepath):
@@ -78,7 +79,7 @@ def process_motion_tsv(input_filepath, output_filepath):
         df_filtered.to_csv(output_filepath, sep='\t', index=False)
         
         # Print summary
-        print(f"  ✓ Processing completed successfully!")
+        print(f" Processing completed successfully!")
         print(f"  Rows processed: {len(df_filtered)}")
         print(f"  Columns extracted: {len(df_filtered.columns)}")
         
@@ -95,7 +96,7 @@ def process_motion_tsv(input_filepath, output_filepath):
         return False
 
 
-def process_subject_session(data_dir, subject, session, task, run):
+def process_subject_session(data_dir, subject, session):
     """
     Process motion files for a specific subject/session/task/run combination.
     
@@ -114,6 +115,40 @@ def process_subject_session(data_dir, subject, session, task, run):
         print(f"Error: func directory does not exist: {func_dir}")
         return
     
+    dtseries = Path(func_dir) / f"{subject}_{session}_task-rest_bold_desc-filtered_timeseries.dtseries.nii"
+
+    if not dtseries.exists():
+        print(f"Error: dtseries file does not exist: {dtseries}")
+        return
+    
+    # Load the file
+    img = nib.load(str(dtseries))
+
+    # Get the shape - for dtseries, this is typically (timepoints, vertices/voxels)
+    print(f"Shape: {img.shape}")
+    print(f"Number of timepoints: {img.shape[0]}")
+
+    run_counts = img.shape[0] // 383
+    print(f"Number of rest runs: {run_counts}")
+
+    for run in range(1, run_counts + 1):
+        run_str = f"run-{run:02d}"
+        task = 'rest'
+        process_run(func_dir, subject, session, task, run_str)
+
+    
+    
+def process_run(func_dir, subject, session, task, run):
+    """
+    Process motion files for a specific run.
+    
+    Args:
+        func_dir (Path): Path to the functional directory
+        subject (str): Subject ID
+        session (str): Session ID
+        task (str): Task name
+        run (str): Run identifier
+    """
     print(f"\nProcessing: {subject}/{session}/func/ - task: {task}, run: {run}")
     new_run = run.replace('run-0', 'run-')
     
@@ -165,9 +200,9 @@ def process_subject_session(data_dir, subject, session, task, run):
             print(f"  Failed to process {input_filename}")
     
     if processed_count > 0:
-        print(f"\n✓ Successfully processed {processed_count} file(s) for {subject}/{session}")
+        print(f"\n Successfully processed {processed_count} file(s) for {subject}/{session}")
     else:
-        print(f"\n○ No files needed processing for {subject}/{session}")
+        print(f"\n No files needed processing for {subject}/{session}")
 
 
 def main():
@@ -194,8 +229,6 @@ Expected directory structure:
     parser.add_argument('data_dir', help='Root data directory path')
     parser.add_argument('subject', help='Subject ID (e.g., sub-01)')
     parser.add_argument('session', help='Session ID (e.g., ses-01)')
-    parser.add_argument('task', help='Task name (e.g., rest)')
-    parser.add_argument('run', help='Run identifier (e.g., run-01)')
     
     # Parse arguments
     args = parser.parse_args()
@@ -212,8 +245,8 @@ Expected directory structure:
             str(data_dir), 
             args.subject, 
             args.session, 
-            args.task, 
-            args.run
+            # args.task, 
+            # args.run
         )
     except Exception as e:
         print(f"Error: {str(e)}")
