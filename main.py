@@ -178,8 +178,8 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python tsv_motion_processor.py /data sub-01 ses-01 rest run-01
-  python tsv_motion_processor.py /path/to/data sub-02 ses-baseline task1 run-02
+  python main.py /data sub-01 ses-01 rest run-01
+  python main.py /path/to/data sub-02 ses-baseline task1 run-02
   
 Expected directory structure:
   data_dir/
