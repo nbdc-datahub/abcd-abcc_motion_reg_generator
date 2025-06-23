@@ -244,9 +244,7 @@ Expected directory structure:
         process_subject_session(
             str(data_dir), 
             args.subject, 
-            args.session, 
-            # args.task, 
-            # args.run
+            args.session,
         )
     except Exception as e:
         print(f"Error: {str(e)}")
