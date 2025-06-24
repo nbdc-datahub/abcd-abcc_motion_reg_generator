@@ -41,16 +41,14 @@ Run the script with the following arguments:
     
     python run.py bids_dir {participant,group} [options]
     
-
-
-Positional Arguments:
+**Positional Arguments**:
 - `bids_dir`: The directory with the input dataset formatted according to the BIDS standard.
 - `{participant,group}`: Level of analysis to perform
   - `participant`: Process individual participants (can run in parallel)
   - `group`: Process all participants and sessions in the bids directory
 - **Note**: The `group` level analysis might take hours or even days depending on the size of the dataset and the number of participants.
 
-Optional Arguments:
+**Optional Arguments**:
 - `--participant_label PARTICIPANT_LABEL [PARTICIPANT_LABEL ...]`: 
   - The label(s) of participant(s) to analyze (without "sub-" prefix)
   - If not provided, all subjects will be processed
