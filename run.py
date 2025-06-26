@@ -24,33 +24,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def run_bids_validator(bids_dir):
-    """
-    Run BIDS validator on the input directory.
-    
-    Args:
-        bids_dir (str): Path to BIDS directory
-        
-    Returns:
-        bool: True if validation passes, False otherwise
-    """
-    try:
-        from bids_validator import BIDSValidator
-        validator = BIDSValidator()
-        
-        logger.info("Running BIDS validation...")
-        # Note: This is a simplified validation check
-        # In practice, you might want to use the web-based validator or node.js version
-        logger.info("BIDS validation completed successfully")
-        return True
-    except ImportError:
-        logger.warning("BIDS validator not available. Skipping validation.")
-        return True
-    except Exception as e:
-        logger.error(f"BIDS validation failed: {str(e)}")
-        return False
-
-
 def process_motion_tsv(input_filepath, output_filepath):
     """
     Process motion TSV file by extracting specific columns and renaming them.
@@ -109,7 +82,7 @@ def process_motion_tsv(input_filepath, output_filepath):
         df_filtered.to_csv(output_filepath, sep='\t', index=False)
         
         # Log summary
-        logger.info(f" Processing completed successfully!")
+        logger.info(f"  Processing completed successfully!")
         # logger.info(f"  Rows processed: {len(df_filtered)}")
         # logger.info(f"  Columns extracted: {len(df_filtered.columns)}")
         
@@ -126,18 +99,18 @@ def process_motion_tsv(input_filepath, output_filepath):
         return False
 
 
-def process_subject_session(bids_dir, subject, session):
+def process_subject_session(derivative_dir, subject, session):
     """
     Process motion files for a specific subject/session combination.
     
     Args:
-        bids_dir (str): Root BIDS directory
+        derivative_dir (str): Root BIDS directory
         subject (str): Subject ID (e.g., 'sub-01')
         session (str): Session ID (e.g., 'ses-01')
     """
     
     # Construct the func directory path
-    func_dir = Path(bids_dir) / subject / session / 'func'
+    func_dir = Path(derivative_dir) / subject / session / 'func'
     
     if not func_dir.exists():
         logger.error(f"func directory does not exist: {func_dir}")
@@ -154,10 +127,10 @@ def process_subject_session(bids_dir, subject, session):
 
     # Get the shape - for dtseries, this is typically (timepoints, vertices/voxels)
     # logger.info(f"Shape: {img.shape}")
-    logger.info(f"Number of timepoints: {img.shape[0]}")
+    logger.info(f" Number of timepoints: {img.shape[0]}")
 
     run_counts = img.shape[0] // 383
-    logger.info(f"Number of rest runs: {run_counts}")
+    logger.info(f" Number of rest runs: {run_counts}")
 
     for run in range(1, run_counts + 1):
         run_str = f"run-{run:02d}"
@@ -176,7 +149,7 @@ def process_run(func_dir, subject, session, task, run):
         task (str): Task name
         run (str): Run identifier
     """
-    logger.info(f" Processing: {subject}/{session}/func/ - task: {task}, run: {run}")
+    logger.info(f"  Processing: {subject}/{session}/func/ - task: {task}, run: {run}")
     new_run = run.replace('run-0', 'run-')
     
     # Base filename pattern
@@ -205,13 +178,13 @@ def process_run(func_dir, subject, session, task, run):
         input_filepath = func_dir / input_filename
         output_filepath = func_dir / output_filename
         
-        logger.info(f"Checking pattern: {pattern['description']}")
+        logger.info(f"  Checking pattern: {pattern['description']}")
         logger.debug(f"  Input file: {input_filename}")
         logger.debug(f"  Output file: {output_filename}")
         
         # Check if input file exists
         if not input_filepath.exists():
-            logger.debug(f"  Input file does not exist, skipping...")
+            logger.warning(f"  Input file does not exist, skipping...")
             continue
             
         # Check if output file already exists
@@ -227,30 +200,30 @@ def process_run(func_dir, subject, session, task, run):
             logger.error(f"  Failed to process {input_filename}")
     
     if processed_count > 0:
-        logger.info(f"Successfully processed {processed_count} file(s) for {subject}/{session} \n")
+        logger.info(f" Successfully processed {processed_count} file(s) for {subject}/{session} \n")
     else:
         logger.info(f"No files needed processing for {subject}/{session} \n")
 
 
-def run_participant_level(bids_dir, analysis_level, participant_labels, session_labels):
+def run_participant_level(derivative_dir, analysis_level, participant_labels, session_labels):
     """
     Run participant level analysis.
     
     Args:
-        bids_dir (str): BIDS input directory
+        derivative_dir (str): BIDS input directory
         participant_labels (list): List of participant labels to process
     """
     logger.info(f"Starting {analysis_level} level analysis")
     
     # Get all subjects if none specified
     if analysis_level == 'group':
-        bids_layout = BIDSLayout(bids_dir, validate=False)
-        logger.info(f"Processing all participants and sessions in {bids_dir}")
+        bids_layout = BIDSLayout(derivative_dir, validate=False)
+        logger.info(f"Processing all participants and sessions in {derivative_dir}")
         participant_labels = [s.replace('sub-', '') for s in bids_layout.get_subjects()]
         all_sessions = set()
         for participant_label in participant_labels:
             subject = f"sub-{participant_label}"
-            subject_dir = Path(bids_dir) / subject
+            subject_dir = Path(derivative_dir) / subject
             if subject_dir.exists():
                 session_dirs = [d.name for d in subject_dir.iterdir() 
                                 if d.is_dir() and d.name.startswith('ses-')]
@@ -261,7 +234,7 @@ def run_participant_level(bids_dir, analysis_level, participant_labels, session_
         if not participant_labels or not session_labels:
             logger.error("Participant labels or session labels not specified for participant level analysis")
             sys.exit(1)
-        logger.info(f" Processing specified participants: {participant_labels}")
+        logger.info(f"Processing specified participants: {participant_labels}")
     
     for participant_label in participant_labels:
         for session_label in session_labels:
@@ -270,22 +243,22 @@ def run_participant_level(bids_dir, analysis_level, participant_labels, session_
             logger.info(f" Processing participant: {subject}")
             
             # Find all sessions for this subject
-            subject_dir = Path(bids_dir) / subject
+            subject_dir = Path(derivative_dir) / subject
             session_dir =  Path(subject_dir) / session
             if not subject_dir.exists():
-                logger.warning(f"Subject directory does not exist: {subject_dir}")
+                logger.warning(f" Subject directory does not exist: {subject_dir}")
                 continue
     
             if not session_labels:
-                logger.warning(f"No session directories found for {subject}")
+                logger.warning(f" No session directories found for {subject}")
                 continue
             
-            logger.info(f"Processing session: {session}")
+            logger.info(f" Processing session: {session}")
             
             try:
-                process_subject_session(bids_dir,subject, session)
+                process_subject_session(derivative_dir,subject, session)
             except Exception as e:
-                logger.error(f"Error processing {subject}/{session}: {str(e)}")
+                logger.error(f" Error processing {subject}/{session}: {str(e)}")
                 continue
 
 
@@ -309,7 +282,7 @@ def main():
     )
     
     # Positional arguments
-    parser.add_argument('bids_dir', 
+    parser.add_argument('derivative_dir', 
                        help='The directory with the input dataset formatted according to the BIDS standard.')
     parser.add_argument('analysis_level', 
                        choices=['participant', 'group'],
@@ -321,9 +294,6 @@ def main():
     parser.add_argument('--participant_label', 
                        nargs='+',
                        help='The label(s) of the participant(s) that should be analyzed. The label corresponds to sub-<participant_label> from the BIDS spec (so it does not include "sub-"). If this parameter is not provided all subjects should be analyzed. Multiple participants can be specified with a space separated list.')
-    parser.add_argument('--skip_bids_validator', 
-                       action='store_true',
-                       help='Whether or not to perform BIDS dataset validation')
     parser.add_argument('-v', '--version', 
                        action='version', 
                        version=f'TSV Motion Data Processor v{__version__}')
@@ -332,23 +302,16 @@ def main():
     args = parser.parse_args()
     
     # Validate directories
-    bids_dir = Path(args.bids_dir)
-    # output_dir = Path(args.output_dir)
+    derivative_dir = Path(args.derivative_dir)
     
-    if not bids_dir.exists():
-        logger.error(f"BIDS directory does not exist: {bids_dir}")
+    if not derivative_dir.exists():
+        logger.error(f"BIDS directory does not exist: {derivative_dir}")
         sys.exit(1)
-    
-    # Run BIDS validation if requested
-    if not args.skip_bids_validator:
-        if not run_bids_validator(bids_dir):
-            logger.error("BIDS validation failed")
-            sys.exit(1)
     
     # Run the appropriate analysis level
     try:
         if args.analysis_level :
-            run_participant_level(bids_dir, args.analysis_level, args.participant_label, args.session_label)
+            run_participant_level(derivative_dir, args.analysis_level, args.participant_label, args.session_label)
         else:
             logger.error(f"Unknown analysis level: {args.analysis_level}")
             sys.exit(1)
