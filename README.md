@@ -57,7 +57,6 @@ Run the script with the following arguments:
   - The label(s) of session(s) to analyze (without "ses-" prefix)
   - If not provided, all sessions will be processed
   - Multiple sessions: `--session_label 0A 0B`
-- `--skip_bids_validator`: Skip BIDS dataset validation
 - `-v, --version`: Show program version and exit
 - `-h, --help`: Show help message and exit
 
