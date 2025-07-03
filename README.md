@@ -28,11 +28,11 @@ This project uses a Conda environment for managing dependencies.
 
 1. Create a new Conda environment using the `environment.yml` file:
    ```bash
-   conda env create -f environment.yml
+   mamba env create -f environment.yml
 
 2. Activate the environment:
    ```bash
-   conda activate abcd_motion_reg_generator
+   mamba/conda activate abcd_motion_reg_generator
    
 ## Usage
 Command-Line Interface  
@@ -126,8 +126,4 @@ The tool processes input files and creates corresponding output files in the sam
 ## Dependencies
 - pandas
 - nibabel
-- pathlib
-- argparse
-- json
-- logging
-- pybids (optional, for enhanced BIDS support)
+- pybids
